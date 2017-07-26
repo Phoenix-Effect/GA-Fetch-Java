@@ -10,6 +10,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
@@ -21,11 +22,26 @@ import com.google.api.services.analyticsreporting.v4.AnalyticsReportingScopes;
 import com.google.api.services.analyticsreporting.v4.AnalyticsReporting;
 import com.google.api.services.analyticsreporting.v4.model.*;
 
+import org.apache.commons.csv.*;
+
 
 /**
  * A simple example of how to access the Google Analytics API.
  */
 public class HelloAnalytics {
+
+    //CSV writing part
+    //Delimiter used in CSV file
+    private static final String NEW_LINE_SEPARATOR = "\n";
+
+    //CSV file header
+    private static final Object [] FILE_HEADER = {"User Type","Referral Path","Time on Page","Page Views","Exit Rate"};
+    private static final Object [] FILE_HEADER2 = {"id"};
+
+    private static ArrayList<ArrayList<String>> csvArray = new ArrayList<>();
+    private static FileWriter fileWriter = null;
+    private static CSVPrinter csvPrinter = null;
+    private static CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 
     // Path to client_secrets.json file downloaded from the Developer's Console.
     // The path is relative to HelloAnalytics.java.
@@ -49,6 +65,9 @@ public class HelloAnalytics {
 
             GetReportsResponse response = getReport(service);
             printResponse(response);
+            responseToCSV(csvArray);
+            printArrayList();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -180,23 +199,63 @@ public class HelloAnalytics {
             }
 
             for (ReportRow row: rows) {
+
+                ArrayList<String> rowArray = new ArrayList<>();
+
                 List<String> dimensions = row.getDimensions();
                 List<DateRangeValues> metrics = row.getMetrics();
                 for (int i = 0; i < dimensionHeaders.size() && i < dimensions.size(); i++) {
-                    System.out.println(dimensionHeaders.get(i) + ": " + dimensions.get(i));
+                 //   System.out.println(dimensionHeaders.get(i) + ": " + dimensions.get(i));
+                    rowArray.add(dimensions.get(i));
                 }
 
                 for (int j = 0; j < metrics.size(); j++) {
                     //System.out.println("Date Range (" + j + "): ");
                     DateRangeValues values = metrics.get(j);
                     for (int k = 0; k < values.getValues().size() && k < metricHeaders.size(); k++) {
-                        System.out.println(metricHeaders.get(k).getName() + ": " + values.getValues().get(k));
+                   //     System.out.println(metricHeaders.get(k).getName() + ": " + values.getValues().get(k));
+
+                        rowArray.add(values.getValues().get(k));
                     }
                 }
-
-                System.out.println();
-                System.out.println();
+                csvArray.add(rowArray);
             }
+        }
+    }
+
+    private static void responseToCSV(ArrayList listToPrint){
+
+        try{
+            fileWriter = new FileWriter("test.csv");
+            csvPrinter = new CSVPrinter(fileWriter, csvFormat);
+
+            csvPrinter.printRecord(FILE_HEADER);
+
+            for(ArrayList eachRow:csvArray){
+                csvPrinter.printRecord(eachRow);
+            }
+
+
+
+            System.out.println("File Created!");
+
+        } catch (Exception e){
+            System.out.println("Error when creating file");
+        } finally {
+            try{
+                fileWriter.flush();
+                fileWriter.close();
+                csvPrinter.close();
+
+            } catch (IOException e){
+                System.out.println("Couldn't close file");
+            }
+        }
+    }
+
+    private static void printArrayList(){
+        for(Object output:csvArray){
+            System.out.println(output);
         }
     }
 }
