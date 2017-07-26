@@ -187,12 +187,15 @@ public class HelloAnalytics {
                 }
 
                 for (int j = 0; j < metrics.size(); j++) {
-                    System.out.print("Date Range (" + j + "): ");
+                    //System.out.println("Date Range (" + j + "): ");
                     DateRangeValues values = metrics.get(j);
                     for (int k = 0; k < values.getValues().size() && k < metricHeaders.size(); k++) {
                         System.out.println(metricHeaders.get(k).getName() + ": " + values.getValues().get(k));
                     }
                 }
+
+                System.out.println();
+                System.out.println();
             }
         }
     }

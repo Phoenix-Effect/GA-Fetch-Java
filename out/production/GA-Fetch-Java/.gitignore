@@ -1,0 +1,5 @@
+
+*.class
+*.xml
+GA-Fetch-Java.iml
+out/production/GA-Fetch-Java/client_secret.json
