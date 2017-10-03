@@ -33,12 +33,8 @@ public class HelloAnalytics {
     //CSV writing part
     //Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
-
-    //CSV file header
     private static final Object [] FILE_HEADER = {"User Type","Referral Path","Time on Page","Page Views","Exit Rate"};
-    private static final Object [] FILE_HEADER2 = {"id"};
-
-    private static ArrayList<ArrayList<String>> csvArray = new ArrayList<>();
+    private static ArrayList<ArrayList<String>> csvArray = new ArrayList<>(); //This is arraylist object where everything is written
     private static FileWriter fileWriter = null;
     private static CSVPrinter csvPrinter = null;
     private static CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
@@ -65,8 +61,8 @@ public class HelloAnalytics {
 
             GetReportsResponse response = getReport(service);
             printResponse(response);
-            responseToCSV(csvArray);
-            printArrayList();
+            responseToCSV();
+          //  printArrayList();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -223,7 +219,7 @@ public class HelloAnalytics {
         }
     }
 
-    private static void responseToCSV(ArrayList listToPrint){
+    private static void responseToCSV(){
 
         try{
             fileWriter = new FileWriter("test.csv");
@@ -234,8 +230,6 @@ public class HelloAnalytics {
             for(ArrayList eachRow:csvArray){
                 csvPrinter.printRecord(eachRow);
             }
-
-
 
             System.out.println("File Created!");
 
